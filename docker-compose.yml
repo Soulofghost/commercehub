@@ -1,0 +1,15 @@
+services:
+  commercehub:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - DB_PATH=/app/data/commercehub.db
+    volumes:
+      - commerce_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  commerce_data:

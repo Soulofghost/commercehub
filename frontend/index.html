@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommerceHub | Modern E-Commerce & Merchant Operations</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-symbol">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h2>CommerceHub</h2>
+          <span class="badge-tag">ENTERPRISE RETAIL v1.0</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-view="storefront">🛍️ Storefront</button>
+        <button class="nav-btn" data-view="orders">📦 Merchant Orders</button>
+      </nav>
+
+      <div class="cart-trigger" id="openCartBtn">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-badge" id="cartCountBadge">0</span>
+        <span class="cart-total-preview" id="cartTotalPreview">$0.00</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-body">
+      <!-- VIEW 1: STOREFRONT -->
+      <section class="view-panel active" id="viewStorefront">
+        <div class="store-banner">
+          <div>
+            <h1>Premium Engineering Equipment</h1>
+            <p>Architected for performance, ergonomics, and extreme durability.</p>
+          </div>
+          <div class="promo-strip">
+            <span>🎉 Use code <strong>WELCOME10</strong> for 10% off | Free standard freight on orders &ge; $100</span>
+          </div>
+        </div>
+
+        <div class="products-grid" id="productsGrid">
+          <div class="loading-state">Loading merchandise catalog...</div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: MERCHANT ORDERS -->
+      <section class="view-panel" id="viewOrders">
+        <div class="section-head">
+          <div>
+            <h1>Merchant Fulfillment Desk</h1>
+            <p>Real-time order pipeline, SKU inventory allocation, and shipment tracking.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshOrdersBtn">↻ Refresh Pipeline</button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="kpi-strip">
+          <div class="kpi-card">
+            <span class="kpi-label">Gross Revenue</span>
+            <span class="kpi-value text-gold" id="kpiGrossRev">$0.00</span>
+            <span class="kpi-sub">Total settled orders</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Orders Processed</span>
+            <span class="kpi-value" id="kpiOrderCount">0</span>
+            <span class="kpi-sub">Fulfillment stream</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Low-Stock SKUs</span>
+            <span class="kpi-value text-crimson" id="kpiLowStock">0</span>
+            <span class="kpi-sub">SKUs &le; 20 units</span>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-wrap">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Subtotal</th>
+                <th>Discounts</th>
+                <th>Grand Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="8" class="text-center text-muted">Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Slide-out Cart Drawer -->
+  <div class="cart-backdrop" id="cartBackdrop">
+    <div class="cart-drawer">
+      <div class="cart-header">
+        <h3>Shopping Bag (<span id="cartDrawerCount">0</span>)</h3>
+        <button class="btn-close" id="closeCartBtn">&times;</button>
+      </div>
+
+      <div class="cart-items-wrap" id="cartItemsContainer">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="cart-summary">
+        <div class="coupon-box">
+          <input type="text" id="couponInput" placeholder="Promo code (e.g. WELCOME10)">
+          <button class="btn btn-secondary btn-sm" id="applyCouponBtn">Apply</button>
+        </div>
+
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <span id="sumSubtotal">$0.00</span>
+        </div>
+        <div class="summary-line text-emerald" id="sumDiscountRow" style="display: none;">
+          <span>Discount (<span id="appliedCouponCode"></span>)</span>
+          <span id="sumDiscount">-$0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>Shipping (Standard)</span>
+          <span id="sumShipping">$0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>Estimated Sales Tax (8.25%)</span>
+          <span id="sumTax">$0.00</span>
+        </div>
+        <div class="summary-line total-line">
+          <span>Total Payable</span>
+          <span id="sumGrandTotal">$0.00</span>
+        </div>
+
+        <button class="btn btn-gold btn-block" id="proceedCheckoutBtn">Proceed to Checkout →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Checkout Form -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Secure Order Checkout</h3>
+        <button class="btn-close" id="closeCheckoutBtn">&times;</button>
+      </div>
+      <form id="checkoutForm">
+        <div class="field">
+          <label>Full Name *</label>
+          <input type="text" id="custName" required placeholder="e.g. Jordan Vance">
+        </div>
+        <div class="field">
+          <label>Email Address *</label>
+          <input type="email" id="custEmail" required placeholder="jordan.vance@techcorp.io">
+        </div>
+        <div class="field">
+          <label>Shipping Street Address *</label>
+          <input type="text" id="custAddress" required placeholder="742 Evergreen Terrace, Springfield, OR 97477">
+        </div>
+        <div class="field">
+          <label>Shipping Method *</label>
+          <select id="custShipping">
+            <option value="standard">Standard Ground ($15.00 / Free over $100)</option>
+            <option value="express">Express Priority Air ($25.00 / $10.00 over $100)</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelCheckoutBtn">Cancel</button>
+          <button type="submit" class="btn btn-gold">Authorize & Pay Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Order Invoice -->
+  <div class="modal-overlay" id="invoiceModal">
+    <div class="modal-card invoice-card">
+      <div class="modal-header">
+        <h3 id="invoiceOrderNum">Invoice ORD-1001</h3>
+        <button class="btn-close" id="closeInvoiceBtn">&times;</button>
+      </div>
+      <div class="invoice-body" id="invoiceBody">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="closeInvoiceModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
